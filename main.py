@@ -60,19 +60,20 @@ def get_info(message):
 
 def get_photo(message):
 	id = message.photo[0].file_id
+	print(id)
 	user.append(get_blob(id))
 	send = bot.send_message(message.chat.id, "Let's go!")
 	query_add_user = "REPLACE INTO users VALUES (%s, %s, %s, %s, %s, %s, %s)"
 	db.tgbot.execute(query_add_user, user)
 	db.connection.commit()
 
-@bot.message_handler(commands=['all'])
-def show_all(message):
-	query_find_me = "SELECT * FROM users
-	db.tgbot.execute(query_find_me)
-	result = db.tgbot.fetchall()
-	for row in result:
-		print(row)
+# @bot.message_handler(commands=['all'])
+# def show_all(message):
+# 	query_find_me = "SELECT * FROM users"
+# 	db.tgbot.execute(query_find_me)
+# 	result = db.tgbot.fetchall()
+# 	for row in result:
+# 		print(row)
 
 @bot.message_handler(commands=['find'])
 def show_one(message):
