@@ -67,13 +67,13 @@ def get_photo(message):
 	db.tgbot.execute(query_add_user, user)
 	db.connection.commit()
 
-# @bot.message_handler(commands=['all'])
-# def show_all(message):
-# 	query_find_me = "SELECT * FROM users"
-# 	db.tgbot.execute(query_find_me)
-# 	result = db.tgbot.fetchall()
-# 	for row in result:
-# 		print(row)
+@bot.message_handler(commands=['all'])
+def show_all(message):
+	query_find_me = "SELECT * FROM users"
+	db.tgbot.execute(query_find_me)
+	result = db.tgbot.fetchall()
+	for row in result:
+		print(row)
 
 @bot.message_handler(commands=['find'])
 def show_one(message):
