@@ -66,7 +66,7 @@ def get_photo(message):
 	query_add_user = "REPLACE INTO users(id) VALUES (%s)"
 	query_add_form = "REPLACE INTO forms(id, name, city, info, image) VALUES (%s, %s, %s, %s, %s)"
 	# id name city info photo
-	db.tgbot.execute(query_add_user, user)
+	db.tgbot.execute(query_add_user, user[0])
 	db.tgbot.execute(query_add_form, user)
 	db.connection.commit()
 
