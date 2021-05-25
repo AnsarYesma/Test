@@ -48,6 +48,8 @@ tgbot = connection.cursor()
 
 run = tgbot.execute
 
+
+
 # show_table_query = connection.cursor
 
 # with connection.cursor() as cursor:
