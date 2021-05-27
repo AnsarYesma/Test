@@ -66,7 +66,8 @@ def get_photo(message):
 	query_add_user = "REPLACE INTO users(id) VALUES (%s)"
 	query_add_form = "REPLACE INTO forms(id, name, city, info, image) VALUES (%s, %s, %s, %s, %s)"
 	# id name city info photo
-	temp[0] = user[0]
+	temp = []
+	temp.append(user[0])
 	db.tgbot.execute(query_add_user, temp)
 	db.tgbot.execute(query_add_form, user)
 	db.connection.commit()
@@ -81,13 +82,16 @@ def get_photo(message):
 
 @bot.message_handler(commands=['find'])
 def show_one(message):
-	query_find_me = "SELECT name, city, info, photo FROM users ORDER BY RAND() LIMIT 1"
+	query_find_me = "SELECT name, city, info, image FROM forms ORDER BY RAND() LIMIT 1"
 	db.tgbot.execute(query_find_me)
 	result = db.tgbot.fetchall()
-	row = result[0]
-	bot.send_message(message.chat.id, row[0] + " из " + row[1])
-	bot.send_message(message.chat.id, row[2])
-	bot.send_photo(message.chat.id, row[3])
+	if len(result) == 0:
+		bot.send_message(message.chat.id, "bruh")
+	else:
+		row = result[0]
+		bot.send_message(message.chat.id, row[0] + " из " + row[1])
+		bot.send_message(message.chat.id, row[2])
+		bot.send_photo(message.chat.id, row[3])
 
 
 bot.polling()
