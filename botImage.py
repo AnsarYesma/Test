@@ -15,7 +15,7 @@ def get_response(url):
 
 def get_blob(file_id):
 	url = "https://api.telegram.org/bot%s/getFile?file_id=%s" % (token, str(file_id))
-	print("URL", url)
+	# print("URL", url)
 	json_file = get_response(url)
 	image_path = json_file["result"]["file_path"]
 	url = "https://api.telegram.org/file/bot%s/%s" % (token, image_path)

@@ -27,7 +27,7 @@ CREATE TABLE forms (
 
 rates_table = """
 CREATE TABLE rates (
-    id_subject INT, 
+    id_subject INT,
     id_object INT,
     text_message VARCHAR(100),
     PRIMARY KEY (id_subject, id_object)
