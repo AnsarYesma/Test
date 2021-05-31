@@ -131,7 +131,7 @@ def get_vote(message, id):
 		bot.register_next_step_handler(send, get_vote, id)
 
 def get_match(message, id, username_second):
-	if message.text == 'like'
+	if message.text == 'like':
 		bot.send_message(id, "Хватай его - t.me/%s!" % message.from_user.username)
 		bot.send_message(message.chat.id, "У вас взаимность! t.me/%s" % username_second)
 	elif message.text != 'dislike':
