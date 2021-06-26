@@ -8,26 +8,35 @@ from botImage import get_blob
 
 bot = telebot.TeleBot(token)
 
-def get_response(url):
-	operUrl = urllib.request.urlopen(url)
-	if(operUrl.getcode()==200):
-		data = operUrl.read()
-		jsonData = json.loads(data)
-	else:
-		print("Error receiving data", operUrl.getcode())
-	return jsonData
+# DEBUG PART
+# @bot.message_handler(commands=['debug'])
+# def starting(message):
+# 	global user
+# 	user = []
+# 	curr_id = int(input("ID_debug: "))
+# 	user.append(curr_id)
+# 	query_checkFirst = """
+# 	SELECT id FROM tgbot.users WHERE id = %s
+# 	""" % curr_id
+# 	tgbot.execute(query_checkFirst)
+# 	res = tgbot.fetchall()
+# 	if len(res) == 0:
+# 		bot.send_message(message.chat.id, "Привет студент! Как подготовка? Если ты хочешь найти единомышленников, давай познакомимся !")
+# 	else:
+# 		bot.send_message(message.chat.id, "Привет студент! Хочешь поменять анкету? Для отмены можешь отправить 'Отмена' на любом вопросе.")
+# 	send = bot.send_message(message.chat.id, "Как мне тебя звать ?")
+# 	bot.register_next_step_handler(send, get_name)
 
+
+#Создание анкеты
 @bot.message_handler(commands=['start'])
 def starting(message):
 	global user
 	user = []
 	curr_id = message.chat.id
 	user.append(curr_id)
-	query_checkFirst = """
-	SELECT id FROM tgbot.users WHERE id = %s
-	""" % curr_id
-	tgbot.execute(query_checkFirst)
-	res = tgbot.fetchall()
+	query = "SELECT id FROM tgbot.users WHERE id = %s " % curr_id
+	res = get_sql(query)
 	if len(res) == 0:
 		bot.send_message(message.chat.id, "Привет студент! Как подготовка? Если ты хочешь найти единомышленников, давай познакомимся !")
 	else:
@@ -35,25 +44,6 @@ def starting(message):
 	send = bot.send_message(message.chat.id, "Как мне тебя звать ?")
 	bot.register_next_step_handler(send, get_name)
 
-# DEBUG PART
-@bot.message_handler(commands=['debug'])
-def starting(message):
-	global user
-	user = []
-	curr_id = int(input("ID_debug: "))
-	user.append(curr_id)
-	query_checkFirst = """
-	SELECT id FROM tgbot.users WHERE id = %s
-	""" % curr_id
-	tgbot.execute(query_checkFirst)
-	res = tgbot.fetchall()
-	if len(res) == 0:
-		bot.send_message(message.chat.id, "Привет студент! Как подготовка? Если ты хочешь найти единомышленников, давай познакомимся !")
-	else:
-		bot.send_message(message.chat.id, "Привет студент! Хочешь поменять анкету? Для отмены можешь отправить 'Отмена' на любом вопросе.")
-	send = bot.send_message(message.chat.id, "Как мне тебя звать ?")
-	bot.register_next_step_handler(send, get_name)
-# DEBUG PART
 def get_name(message):
 	if (message.text == 'Отмена'):
 		return
@@ -82,22 +72,25 @@ def get_photo(message):
 	id = message.photo[0].file_id
 	# print(id)
 	user.append(get_blob(id))
-	query_add_user = "REPLACE INTO users(id) VALUES (%s)"
+	query_add_user = "REPLACE INTO users(id, username) VALUES (%s, %s)"
 	query_add_form = "REPLACE INTO forms(id, name, city, info, image) VALUES (%s, %s, %s, %s, %s)"
 	# id name city info photo
-	temp = []
-	temp.append(user[0])
+	temp = [user[0], message.from_user.id]
 	tgbot.execute(query_add_user, temp)
 	tgbot.execute(query_add_form, user)
 	connection.commit()
 	user.clear()
 	send = bot.send_message(message.chat.id, "Мы всё настроили, теперь полетели ")
 
+
+
+#Поиск анкет
 @bot.message_handler(commands=['find'])
 def show_one(message):
-	query_find_me = "SELECT id, name, city, info, image FROM forms WHERE id != %s ORDER BY RAND() LIMIT 1" % message.chat.id
-	tgbot.execute(query_find_me)
-	result = tgbot.fetchall()
+	query = "SELECT id_object FROM list WHERE id = %s ORDER BY RAND() LIMIT 1" % message.chat.id
+	id_obj = get_sql(query)
+	query = "SELECT id, name, city, info, image FROM forms WHERE id != %s" % id_obj
+	result = get_sql(query)
 	if len(result) != 0:
 		row = result[0]
 		bot.send_message(message.chat.id, row[1] + " из " + row[2])
@@ -108,35 +101,50 @@ def show_one(message):
 	else:
 		bot.send_message(message.chat.id, "нет анкеты")
 
+#Деактивация анкеты
+@bot.message_handler(commands=['deactivate'])
+def show_one(message):
+
+
 def get_vote(message, id):
 	if message.text == 'like':
-		send = bot.send_message(message.chat.id, "Ok: %s" % id)
-		query_find_me = "SELECT id, name, city, info, image FROM forms WHERE id == %s ORDER BY RAND() LIMIT 1" % message.chat.id
-		tgbot.execute(query_find_me)
-		result = tgbot.fetchall()
-		send = bot.send_message(id, "Тобой заинтересовались:")
-		if len(result) == 0:
-			bot.send_message(id, "нет анкеты")
-		else:
-			row = result[0]
-			bot.send_message(id, row[0] + " из " + row[1])
-			bot.send_message(id, row[2])
-			bot.send_photo(id, row[3])
-		bot.send_message(id, "like или dislike?")
-		bot.register_next_step_handler(send, get_match, message.chat.id, message.from_user.username)
+		# debug_send = bot.send_message(message.chat.id, "Ok: %s" % id)
+		query = "INSERT rates(id_subject, id_object) VALUES(%s, %s)" % (id, message.chat.id)
+		execute_sql(query)
+		send = bot.send_message(id, "Тобой заинтересовались! Напиши команду /interest, чтобы увидеть, кто это был")
 	elif message.text == 'dislike':
-		send = bot.send_message(message.chat.id, "Not Ok: %s" % id)
+		# send = bot.send_message(message.chat.id, "Not Ok: %s" % id)
 	else:
 		send = bot.send_message(message.chat.id, "Напиши like или dislike")
 		bot.register_next_step_handler(send, get_vote, id)
 
-def get_match(message, id, username_second):
+@bot.message_handler(commands=['interest'])
+def show_interest(message):
+	query = "SELECT id_object FROM rates WHERE id_subject = %s ORDER BY id_object LIMIT 1" % message.chat.id
+	obj_id = get_sql(query)[0][0]
+	query = "DELETE FROM rates WHERE id_object = %s AND id_subject = %s" % (obj_id, message.chat.id)
+	execute_sql(query)
+	query = "SELECT name, city, info, image FROM forms WHERE id = %s" % obj_id
+	result = get_sql(query)
+	if len(result) == 0:
+		bot.send_message(message.chat.id, "Error")
+	else:
+		row = result[0]
+		bot.send_message(message.chat.id, row[0] + " из " + row[1])
+		bot.send_message(message.chat.id, row[2])
+		bot.send_photo(message.chat.id, row[3])
+	send = bot.send_message(message.chat.id, "like или dislike?")
+	bot.register_next_step_handler(send, get_match, obj_id)
+
+def get_match(message, id):
 	if message.text == 'like':
-		bot.send_message(id, "Хватай его - t.me/%s!" % message.from_user.username)
+		query = "SELECT username FROM users WHERE id = %s" % id
+		bot.send_message(id, "Хватай его - t.me/%s!" % message.from_user.id)
 		bot.send_message(message.chat.id, "У вас взаимность! t.me/%s" % username_second)
 	elif message.text != 'dislike':
 		send = bot.send_message(message.chat.id, "like или dislike")
-		bot.register_next_step_handler(send, get_vote, id, username_second)
+		bot.register_next_step_handler(send, get_match, id, username_second)
+
 
 @bot.message_handler(commands=['me'])
 def show_one(message):
@@ -145,14 +153,14 @@ def show_one(message):
 	result = tgbot.fetchall()
 	bot.send_message(message.chat.id, "Вот твоя анкета:")
 	if len(result) == 0:
-		bot.send_message(message.chat.id, "bruh")
+		bot.send_message(message.chat.id, "Error")
 	else:
 		row = result[0]
 		bot.send_message(message.chat.id, row[0] + " из " + row[1])
 		bot.send_message(message.chat.id, row[2])
 		bot.send_photo(message.chat.id, row[3])
 	bot.send_message(message.chat.id, message.chat.id)
-	bot.send_message(message.chat.id, message.from_user.username)
+	bot.send_message(message.chat.id, message.from_user.id)
 
 
 bot.polling()

@@ -1,13 +1,24 @@
 USE tgbot;
--- DROP TABLE rates;
--- DROP TABLE forms;
--- DROP TABLE users;
+DROP TABLE rates;
+DROP TABLE list;
+DROP TABLE forms;
+DROP TABLE users;
 
--- CREATE TABLE users (
---     id INT PRIMARY KEY,
---     registration_date DATE,
---     last_active DATE
--- );
+CREATE TABLE users (
+    id INT PRIMARY KEY,
+    username VARCHAR(100),
+    registration_date DATE,
+    last_active DATE
+);
+
+CREATE TABLE list (
+    id INT,
+    id_object INT,
+    PRIMARY KEY (id, id_object),
+    FOREIGN KEY (id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (id_object) REFERENCES users(id) ON DELETE CASCADE
+);
+
 
 CREATE TABLE forms (
     id INT PRIMARY KEY,

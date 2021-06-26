@@ -4,6 +4,7 @@ from mysql.connector import connect, Error
 users_table = """
 CREATE TABLE users (
     id INT PRIMARY KEY,
+    username VARCHAR(100),
     registration_date DATE,
     last_active DATE
 )
@@ -16,7 +17,7 @@ CREATE TABLE forms (
     year YEAR(4),
     gender VARCHAR(100),
     city VARCHAR(100),
-    info VARCHAR(max),
+    info VARCHAR(10000),
     image LONGBLOB,
     isActive BOOl,
     lastActive DATE,
@@ -30,9 +31,9 @@ CREATE TABLE rates (
     id_subject INT,
     id_object INT,
     text_message VARCHAR(100),
-    PRIMARY KEY (id_subject, id_object)
-    FOREIGN KEY (id_subject) REFERENCES users (id_subject) ON DELETE CASCADE,
-    FOREIGN KEY (id_object) REFERENCES users (id_object) ON DELETE CASCADE
+    PRIMARY KEY (id_subject, id_object),
+    FOREIGN KEY (id_subject) REFERENCES users (id) ON DELETE CASCADE,
+    FOREIGN KEY (id_object) REFERENCES users (id) ON DELETE CASCADE
 )
 """
 
@@ -46,8 +47,16 @@ connection = connect(
 # connc
 tgbot = connection.cursor()
 
-run = tgbot.execute
+# run = tgbot.execute
 
+def get_sql(query):
+	tgbot.execute(query)
+    result = tgbot.fetchall()
+    return result
+
+def execute_sql(query):
+    tgbot.execute(query)
+    connection.commit()
 
 
 # show_table_query = connection.cursor
