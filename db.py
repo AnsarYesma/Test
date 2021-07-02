@@ -1,16 +1,43 @@
 from getpass import getpass
 from mysql.connector import connect, Error
 
-users_table = """
+connection = connect(
+    host="localhost",
+    user="root",
+    password="Ansar123@",
+    database="tgbot"
+)
+
+tgbot = connection.cursor()
+def get_sql(query):
+    tgbot.execute(query)
+    result = tgbot.fetchall()
+    if len(result) == 0:
+        result = None
+    return result
+    
+def execute_sql(query):
+    tgbot.execute(query)
+    connection.commit()
+
+
+'''
 CREATE TABLE users (
     id INT PRIMARY KEY,
     username VARCHAR(100),
     registration_date DATE,
     last_active DATE
-)
-"""
+);
 
-forms_table = """
+CREATE TABLE list (
+    id INT,
+    id_object INT,
+    PRIMARY KEY (id, id_object),
+    FOREIGN KEY (id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (id_object) REFERENCES users(id) ON DELETE CASCADE
+);
+
+
 CREATE TABLE forms (
     id INT PRIMARY KEY,
     name VARCHAR(100),
@@ -23,52 +50,14 @@ CREATE TABLE forms (
     lastActive DATE,
     popularity INT,
     FOREIGN KEY (id) REFERENCES users (id) ON DELETE CASCADE
-)
-"""
+);
 
-rates_table = """
 CREATE TABLE rates (
-    id_subject INT,
+    id INT,
     id_object INT,
     text_message VARCHAR(100),
-    PRIMARY KEY (id_subject, id_object),
-    FOREIGN KEY (id_subject) REFERENCES users (id) ON DELETE CASCADE,
+    PRIMARY KEY (id, id_object),
+    FOREIGN KEY (id) REFERENCES users (id) ON DELETE CASCADE,
     FOREIGN KEY (id_object) REFERENCES users (id) ON DELETE CASCADE
-)
-"""
-
-connection = connect(
-    host="localhost",
-    user="root",
-    password="Ansar123@",
-    database="tgbot"
-)
-
-# connc
-tgbot = connection.cursor()
-
-# run = tgbot.execute
-
-def get_sql(query):
-	tgbot.execute(query)
-    result = tgbot.fetchall()
-    return result
-
-def execute_sql(query):
-    tgbot.execute(query)
-    connection.commit()
-
-
-# show_table_query = connection.cursor
-
-# with connection.cursor() as cursor:
-#     cursor.execute(create_users_query)
-#     # cursor.execute("DESCRIBE users")
-#     cursor.execute("DESCRIBE users")
-#     # Fetch rows from last executed query
-#     result = cursor.fetchall()
-#     for row in result:
-#         print(row)
-
-
-# print("GOOD")
+);
+'''

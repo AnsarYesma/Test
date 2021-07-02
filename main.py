@@ -78,65 +78,75 @@ def get_photo(message):
 	temp = [user[0], message.from_user.id]
 	tgbot.execute(query_add_user, temp)
 	tgbot.execute(query_add_form, user)
+	add_to_list(user[0])
 	connection.commit()
 	user.clear()
 	send = bot.send_message(message.chat.id, "Мы всё настроили, теперь полетели ")
 
-
+def add_to_list(id):
+	query = "SELECT id FROM users WHERE id != %s" % id
+	result = get_sql(query)
+	if result == None:
+		
 
 #Поиск анкет
 @bot.message_handler(commands=['find'])
 def show_one(message):
+	id = message.chat.id
 	query = "SELECT id_object FROM list WHERE id = %s ORDER BY RAND() LIMIT 1" % message.chat.id
 	id_obj = get_sql(query)
+	if (id_obj == None):
+		if not refresh(id):
+			bot.send_message(id, "Нет людей! Попробуйте позже!")
+		else:
+			id_obj = get_sql(query)
+	id_obj = id_obj[0][0]
 	query = "SELECT id, name, city, info, image FROM forms WHERE id != %s" % id_obj
 	result = get_sql(query)
-	if len(result) != 0:
+	if result != None:
 		row = result[0]
-		bot.send_message(message.chat.id, row[1] + " из " + row[2])
-		bot.send_message(message.chat.id, row[3])
-		bot.send_photo(message.chat.id, row[4])
-		send = bot.send_message(message.chat.id, "Напиши like или dislike")
+		bot.send_message(id, row[1] + " из " + row[2])
+		bot.send_message(id, row[3])
+		bot.send_photo(id, row[4])
+		send = bot.send_message(id, "Напиши like или dislike")
 		bot.register_next_step_handler(send, get_vote, row[0])
 	else:
-		bot.send_message(message.chat.id, "нет анкеты")
+		bot.send_message(id, "Анкета не найдена, ошибка")
 
 #Деактивация анкеты
-@bot.message_handler(commands=['deactivate'])
-def show_one(message):
-
+# @bot.message_handler(commands=['deactivate'])
+# def show_one(message):
+#
 
 def get_vote(message, id):
 	if message.text == 'like':
 		# debug_send = bot.send_message(message.chat.id, "Ok: %s" % id)
-		query = "INSERT rates(id_subject, id_object) VALUES(%s, %s)" % (id, message.chat.id)
+		query = "INSERT rates(id, id_object) VALUES(%s, %s)" % (id, message.chat.id)
 		execute_sql(query)
 		send = bot.send_message(id, "Тобой заинтересовались! Напиши команду /interest, чтобы увидеть, кто это был")
-	elif message.text == 'dislike':
-		# send = bot.send_message(message.chat.id, "Not Ok: %s" % id)
 	else:
 		send = bot.send_message(message.chat.id, "Напиши like или dislike")
 		bot.register_next_step_handler(send, get_vote, id)
 
 @bot.message_handler(commands=['interest'])
 def show_interest(message):
-	query = "SELECT id_object FROM rates WHERE id_subject = %s ORDER BY id_object LIMIT 1" % message.chat.id
+	query = "SELECT id_object FROM rates WHERE id = %s ORDER BY id_object LIMIT 1" % message.chat.id
 	obj_id = get_sql(query)[0][0]
-	query = "DELETE FROM rates WHERE id_object = %s AND id_subject = %s" % (obj_id, message.chat.id)
+	query = "DELETE FROM rates WHERE id_object = %s AND id = %s" % (obj_id, message.chat.id)
 	execute_sql(query)
 	query = "SELECT name, city, info, image FROM forms WHERE id = %s" % obj_id
 	result = get_sql(query)
 	if len(result) == 0:
-		bot.send_message(message.chat.id, "Error")
+		bot.send_message(message.chat.id, "На этом всё. Напиши /find для поиска анкет")
 	else:
 		row = result[0]
 		bot.send_message(message.chat.id, row[0] + " из " + row[1])
 		bot.send_message(message.chat.id, row[2])
 		bot.send_photo(message.chat.id, row[3])
 	send = bot.send_message(message.chat.id, "like или dislike?")
-	bot.register_next_step_handler(send, get_match, obj_id)
+	bot.register_next_step_handler(send, get_match, obj_id, show_interest)
 
-def get_match(message, id):
+def get_match(message, id, function):
 	if message.text == 'like':
 		query = "SELECT username FROM users WHERE id = %s" % id
 		bot.send_message(id, "Хватай его - t.me/%s!" % message.from_user.id)
@@ -144,6 +154,7 @@ def get_match(message, id):
 	elif message.text != 'dislike':
 		send = bot.send_message(message.chat.id, "like или dislike")
 		bot.register_next_step_handler(send, get_match, id, username_second)
+	function()
 
 
 @bot.message_handler(commands=['me'])
@@ -164,3 +175,4 @@ def show_one(message):
 
 
 bot.polling()
+print("OK")

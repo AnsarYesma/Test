@@ -35,10 +35,10 @@ CREATE TABLE forms (
 );
 
 CREATE TABLE rates (
-    id_subject INT,
+    id INT,
     id_object INT,
     text_message VARCHAR(100),
-    PRIMARY KEY (id_subject, id_object),
-    FOREIGN KEY (id_subject) REFERENCES users (id) ON DELETE CASCADE,
+    PRIMARY KEY (id, id_object),
+    FOREIGN KEY (id) REFERENCES users (id) ON DELETE CASCADE,
     FOREIGN KEY (id_object) REFERENCES users (id) ON DELETE CASCADE
 );
