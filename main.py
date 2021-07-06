@@ -40,7 +40,7 @@ def starting(message):
 	user.append(curr_id)
 	query = "SELECT id FROM users WHERE id = %s " % curr_id
 	res = get_sql(query)
-	if len(res) == 0:
+	if res == None:
 		bot.send_message(message.chat.id, "Привет студент! Как подготовка? Если ты хочешь найти единомышленников, давай познакомимся !")
 	else:
 		bot.send_message(message.chat.id, "Привет студент! Хочешь поменять анкету? Для отмены можешь отправить 'Отмена' на любом вопросе.")
@@ -153,7 +153,7 @@ def show_interest(message):
 	execute_sql(query)
 	query = "SELECT name, city, info, image FROM forms WHERE id = %s" % obj_id
 	result = get_sql(query)
-	if len(result) == 0:
+	if result == None:
 		bot.send_message(message.chat.id, "На этом всё. Напиши /find для поиска анкет")
 	else:
 		row = result[0]
@@ -180,7 +180,7 @@ def show_one(message):
 	tgbot.execute(query_find_me)
 	result = tgbot.fetchall()
 	bot.send_message(message.chat.id, "Вот твоя анкета:")
-	if len(result) == 0:
+	if result == None:
 		bot.send_message(message.chat.id, "Error")
 	else:
 		row = result[0]
