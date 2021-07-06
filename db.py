@@ -4,8 +4,8 @@ from mysql.connector import connect, Error
 connection = connect(
     host="TabuBot.mysql.pythonanywhere-services.com",
     user="TabuBot",
-    password="ansar123",
-    database="TabuBot$tgbot"
+    passwd="ansar123",
+    db="TabuBot$tgbot"
 )
 
 tgbot = connection.cursor()
