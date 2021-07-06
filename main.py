@@ -119,6 +119,7 @@ def show_one(message):
 		else:
 			id_obj = get_sql(query)
 	id_obj = id_obj[0]
+	print(id, id_obj)
 	query = "DELETE FROM list WHERE id = %s AND id_object = %s" % (message.chat.id, id_obj)
 	execute_sql(query)
 	query = "SELECT id, name, city, info, image FROM forms WHERE id != %s" % id_obj
@@ -143,7 +144,7 @@ def get_vote(message, id):
 		query = "INSERT rates(id, id_object) VALUES(%s, %s)" % (id, message.chat.id)
 		execute_sql(query)
 		send = bot.send_message(id, "Тобой заинтересовались! Напиши команду /interest, чтобы увидеть, кто это был")
-	elif message.text != dislike:
+	elif message.text != 'dislike':
 		send = bot.send_message(message.chat.id, "Напиши like или dislike")
 		bot.register_next_step_handler(send, get_vote, id)
 
