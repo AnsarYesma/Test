@@ -151,10 +151,14 @@ def get_vote(message, id):
 @bot.message_handler(commands=['interest'])
 def show_interest(message):
 	query = "SELECT id_object FROM rates WHERE id = %s ORDER BY id_object LIMIT 1" % message.chat.id
-	obj_id = get_sql(query)[0][0]
-	query = "DELETE FROM rates WHERE id_object = %s AND id = %s" % (obj_id, message.chat.id)
+	result = getone_sql()
+	if result == None:
+		bot.send_message("Нету!")
+		return
+	id_obj = result[0]
+	query = "DELETE FROM rates WHERE id_object = %s AND id = %s" % (id_obj, message.chat.id)
 	execute_sql(query)
-	query = "SELECT name, city, info, image FROM forms WHERE id = %s" % obj_id
+	query = "SELECT name, city, info, image FROM forms WHERE id = %s" % id_obj
 	result = get_sql(query)
 	if result == None:
 		bot.send_message(message.chat.id, "На этом всё. Напиши /find для поиска анкет")
@@ -164,9 +168,9 @@ def show_interest(message):
 		bot.send_message(message.chat.id, row[2])
 		bot.send_photo(message.chat.id, row[3])
 	send = bot.send_message(message.chat.id, "like или dislike?")
-	bot.register_next_step_handler(send, get_match, obj_id, show_interest)
+	bot.register_next_step_handler(send, get_match, id_obj, show_interest)
 
-def get_match(message, id, function):
+def get_match(message, id):
 	if message.text == 'like':
 		query = "SELECT username FROM users WHERE id = %s" % id
 		res = getone_sql(query)[0]
@@ -174,8 +178,7 @@ def get_match(message, id, function):
 		bot.send_message(message.chat.id, "У вас взаимность! t.me/%s" % res)
 	elif message.text != 'dislike':
 		send = bot.send_message(message.chat.id, "like или dislike")
-		bot.register_next_step_handler(send, get_match, id, function)
-	function()
+		bot.register_next_step_handler(send, get_match, id)
 
 
 @bot.message_handler(commands=['me'])
