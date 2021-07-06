@@ -38,7 +38,7 @@ def starting(message):
 	user = []
 	curr_id = message.chat.id
 	user.append(curr_id)
-	query = "SELECT id FROM tgbot.users WHERE id = %s " % curr_id
+	query = "SELECT id FROM users WHERE id = %s " % curr_id
 	res = get_sql(query)
 	if len(res) == 0:
 		bot.send_message(message.chat.id, "Привет студент! Как подготовка? Если ты хочешь найти единомышленников, давай познакомимся !")
