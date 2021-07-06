@@ -115,6 +115,7 @@ def show_one(message):
 	if (id_obj == None):
 		if not refresh(id):
 			bot.send_message(id, "Нет людей! Попробуйте позже!")
+			return
 		else:
 			id_obj = get_sql(query)
 	id_obj = id_obj[0][0]
