@@ -2,9 +2,9 @@ from getpass import getpass
 from mysql.connector import connect, Error
 
 connection = connect(
-    host="localhost",
-    user="root",
-    password="Ansar123@",
+    host="TabuBot.mysql.pythonanywhere-services.com",
+    user="TabuBot",
+    password="AnsarAskar123",
     database="tgbot"
 )
 
