@@ -110,24 +110,25 @@ def refresh(id):
 @bot.message_handler(commands=['find'])
 def show_one(message):
 	id = message.chat.id
-	query = "SELECT id_object FROM list WHERE id != %s ORDER BY RAND() LIMIT 1" % message.chat.id
-	id_obj = get_sql(query)
+	query = "SELECT id_object FROM list WHERE id = %s ORDER BY RAND() LIMIT 1" % message.chat.id
+	id_obj = getone_sql(query)
 	if (id_obj == None):
 		if not refresh(id):
 			bot.send_message(id, "Нет людей! Попробуйте позже!")
 			return
 		else:
 			id_obj = get_sql(query)
-	id_obj = id_obj[0][0]
+	id_obj = id_obj[0]
+	query = "DELETE FROM list WHERE id = %s AND id_object = %s" % (message.chat.id, id_obj)
+	execute_sql(query)
 	query = "SELECT id, name, city, info, image FROM forms WHERE id != %s" % id_obj
-	result = get_sql(query)
+	result = getone_sql(query)
 	if result != None:
-		row = result[0]
-		bot.send_message(id, row[1] + " из " + row[2])
-		bot.send_message(id, row[3])
-		bot.send_photo(id, row[4])
+		bot.send_message(id, result[1] + " из " + result[2])
+		bot.send_message(id, result[3])
+		bot.send_photo(id, result[4])
 		send = bot.send_message(id, "Напиши like или dislike")
-		bot.register_next_step_handler(send, get_vote, row[0])
+		bot.register_next_step_handler(send, get_vote, result[0])
 	else:
 		bot.send_message(id, "Анкета не найдена, ошибка")
 
@@ -142,7 +143,7 @@ def get_vote(message, id):
 		query = "INSERT rates(id, id_object) VALUES(%s, %s)" % (id, message.chat.id)
 		execute_sql(query)
 		send = bot.send_message(id, "Тобой заинтересовались! Напиши команду /interest, чтобы увидеть, кто это был")
-	else:
+	elif message.text != dislike:
 		send = bot.send_message(message.chat.id, "Напиши like или dislike")
 		bot.register_next_step_handler(send, get_vote, id)
 
