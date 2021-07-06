@@ -110,7 +110,7 @@ def refresh(id):
 @bot.message_handler(commands=['find'])
 def show_one(message):
 	id = message.chat.id
-	query = "SELECT id_object FROM list WHERE id = %s ORDER BY RAND() LIMIT 1" % message.chat.id
+	query = "SELECT id_object FROM list WHERE id != %s ORDER BY RAND() LIMIT 1" % message.chat.id
 	id_obj = get_sql(query)
 	if (id_obj == None):
 		if not refresh(id):
