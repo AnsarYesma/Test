@@ -6,9 +6,10 @@ connection = connect(
     user="TabuBot",
     passwd="ansar123",
     db="TabuBot$tgbot"
-)
+    )
 
 tgbot = connection.cursor()
+
 def get_sql(query):
     tgbot.execute(query)
     result = tgbot.fetchall()

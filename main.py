@@ -29,6 +29,9 @@ bot = telebot.TeleBot(token)
 
 
 #Создание анкеты
+
+execute_sql("USE TabuBot$tgbot;")
+
 @bot.message_handler(commands=['start'])
 def starting(message):
 	global user
