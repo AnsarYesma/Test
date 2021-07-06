@@ -1,4 +1,4 @@
-USE tgbot;
+USE TabuBot$tgbot;
 DROP TABLE rates;
 DROP TABLE list;
 DROP TABLE forms;
