@@ -141,7 +141,7 @@ def show_one(message):
 def get_vote(message, id):
 	if message.text == 'like':
 		# debug_send = bot.send_message(message.chat.id, "Ok: %s" % id)
-		query = "INSERT rates(id, id_object) VALUES(%s, %s)" % (id, message.chat.id)
+		query = "REPLACE INTO rates(id, id_object) VALUES(%s, %s)" % (id, message.chat.id)
 		execute_sql(query)
 		send = bot.send_message(id, "Тобой заинтересовались! Напиши команду /interest, чтобы увидеть, кто это был")
 	elif message.text != 'dislike':
@@ -174,7 +174,7 @@ def get_match(message, id, function):
 		bot.send_message(message.chat.id, "У вас взаимность! t.me/%s" % res)
 	elif message.text != 'dislike':
 		send = bot.send_message(message.chat.id, "like или dislike")
-		bot.register_next_step_handler(send, get_match, id, w)
+		bot.register_next_step_handler(send, get_match, id, function)
 	function()
 
 
