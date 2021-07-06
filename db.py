@@ -15,9 +15,18 @@ def get_sql(query):
     if len(result) == 0:
         result = None
     return result
-    
+
+def getone_sql(query):
+    tgbot.execute(query)
+    result = tgbot.fetchone()
+    return result
+
 def execute_sql(query):
     tgbot.execute(query)
+    connection.commit()
+
+def execute_many(query, data):
+    tgbot.execute_many(query, data)
     connection.commit()
 
 

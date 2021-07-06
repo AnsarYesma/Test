@@ -87,7 +87,21 @@ def add_to_list(id):
 	query = "SELECT id FROM users WHERE id != %s" % id
 	result = get_sql(query)
 	if result == None:
-		
+		return
+	query = "INSERT list(id, id_object) VALUES(%s, %s)"
+	for x in result:
+		execute_sql(query % (x[0], id))
+
+def refresh(id):
+	query = "SELECT id FROM users WHERE id != %s" % id
+	result = get_sql(query)
+	if result == None:
+		return False
+	query = "INSERT list(id, id_object) VALUES(%s, %s)"
+	for x in result:
+		execute_sql(query % (id, x[0]))
+	return True
+
 
 #Поиск анкет
 @bot.message_handler(commands=['find'])
