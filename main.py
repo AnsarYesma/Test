@@ -30,7 +30,7 @@ bot = telebot.TeleBot(token)
 
 #Создание анкеты
 
-execute_sql("USE TabuBot$tgbot;")
+execute_sql("USE TabuBot$tgbot")
 
 @bot.message_handler(commands=['start'])
 def starting(message):
@@ -78,7 +78,7 @@ def get_photo(message):
 	query_add_user = "REPLACE INTO users(id, username) VALUES (%s, %s)"
 	query_add_form = "REPLACE INTO forms(id, name, city, info, image) VALUES (%s, %s, %s, %s, %s)"
 	# id name city info photo
-	temp = [user[0], message.from_user.username]
+	temp = [user[0], str(message.from_user.username)]
 	tgbot.execute(query_add_user, temp)
 	tgbot.execute(query_add_form, user)
 	add_to_list(user[0])
@@ -112,12 +112,14 @@ def show_one(message):
 	id = message.chat.id
 	query = "SELECT id_object FROM list WHERE id = %s ORDER BY RAND() LIMIT 1" % message.chat.id
 	id_obj = getone_sql(query)
+	print("STOP 115")
 	if (id_obj == None):
 		if not refresh(id):
 			bot.send_message(id, "Нет людей! Попробуйте позже!")
 			return
 		else:
 			id_obj = get_sql(query)
+	print("STOP 122")
 	id_obj = id_obj[0]
 	print(id, id_obj)
 	query = "DELETE FROM list WHERE id = %s AND id_object = %s" % (message.chat.id, id_obj)
@@ -168,7 +170,7 @@ def show_interest(message):
 		bot.send_message(message.chat.id, row[2])
 		bot.send_photo(message.chat.id, row[3])
 	send = bot.send_message(message.chat.id, "like или dislike?")
-	bot.register_next_step_handler(send, get_match, id_obj, show_interest)
+	bot.register_next_step_handler(send, get_match, id_obj)
 
 def get_match(message, id):
 	if message.text == 'like':
