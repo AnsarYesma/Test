@@ -38,7 +38,7 @@ def starting(message):
 	user = []
 	curr_id = message.chat.id
 	user.append(curr_id)
-	query = "SELECT id FROM users WHERE id = %s " % curr_id
+	query = "SELECT id FROM users WHERE id = %s" % curr_id
 	res = get_sql(query)
 	if res == None:
 		bot.send_message(message.chat.id, "Привет студент! Как подготовка? Если ты хочешь найти единомышленников, давай познакомимся !")
@@ -122,7 +122,7 @@ def show_one(message):
 	print(id, id_obj)
 	query = "DELETE FROM list WHERE id = %s AND id_object = %s" % (message.chat.id, id_obj)
 	execute_sql(query)
-	query = "SELECT id, name, city, info, image FROM forms WHERE id != %s" % id_obj
+	query = "SELECT id, name, city, info, image FROM forms WHERE id = %s" % id_obj
 	result = getone_sql(query)
 	if result != None:
 		bot.send_message(id, result[1] + " из " + result[2])
