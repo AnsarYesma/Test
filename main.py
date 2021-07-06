@@ -78,7 +78,7 @@ def get_photo(message):
 	query_add_user = "REPLACE INTO users(id, username) VALUES (%s, %s)"
 	query_add_form = "REPLACE INTO forms(id, name, city, info, image) VALUES (%s, %s, %s, %s, %s)"
 	# id name city info photo
-	temp = [user[0], message.from_user.id]
+	temp = [user[0], message.from_user.username]
 	tgbot.execute(query_add_user, temp)
 	tgbot.execute(query_add_form, user)
 	add_to_list(user[0])
@@ -169,11 +169,12 @@ def show_interest(message):
 def get_match(message, id, function):
 	if message.text == 'like':
 		query = "SELECT username FROM users WHERE id = %s" % id
-		bot.send_message(id, "Хватай его - t.me/%s!" % message.from_user.id)
-		bot.send_message(message.chat.id, "У вас взаимность! t.me/%s" % username_second)
+		res = getone_sql(query)[0]
+		bot.send_message(id, "Хватай его - t.me/%s!" % message.from_user.username)
+		bot.send_message(message.chat.id, "У вас взаимность! t.me/%s" % res)
 	elif message.text != 'dislike':
 		send = bot.send_message(message.chat.id, "like или dislike")
-		bot.register_next_step_handler(send, get_match, id, username_second)
+		bot.register_next_step_handler(send, get_match, id, w)
 	function()
 
 
@@ -191,7 +192,7 @@ def show_one(message):
 		bot.send_message(message.chat.id, row[2])
 		bot.send_photo(message.chat.id, row[3])
 	bot.send_message(message.chat.id, message.chat.id)
-	bot.send_message(message.chat.id, message.from_user.id)
+	bot.send_message(message.chat.id, message.from_user.username)
 
 
 bot.polling()
