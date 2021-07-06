@@ -5,7 +5,7 @@ connection = connect(
     host="TabuBot.mysql.pythonanywhere-services.com",
     user="TabuBot",
     password="AnsarAskar123",
-    database="tgbot"
+    database="TabuBot$tgbot"
 )
 
 tgbot = connection.cursor()
