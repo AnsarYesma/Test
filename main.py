@@ -153,7 +153,7 @@ def get_vote(message, id):
 @bot.message_handler(commands=['interest'])
 def show_interest(message):
 	query = "SELECT id_object FROM rates WHERE id = %s ORDER BY id_object LIMIT 1" % message.chat.id
-	result = getone_sql()
+	result = getone_sql(query)
 	if result == None:
 		bot.send_message("Нету!")
 		return
